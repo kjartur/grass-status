@@ -1,0 +1,370 @@
+---
+// Har du klippet gresset? — a one-question status page.
+//
+// HOW THE STATUS IS STORED
+// -------------------------
+// The only thing an admin ever edits is one date, as plain text (e.g. 2026-07-12).
+// No JSON, no rebuild, no redeploy. The page works out "Ja." (mowed today) or
+// "Nei." (not today) and the day-count entirely on its own, client-side, every
+// time someone loads it. See README.md — it's a two-minute one-time setup.
+const GIST_RAW_URL = ""; // paste your gist's Raw text URL here — see README.md
+---
+
+<!doctype html>
+<html lang="no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Har du klippet gresset?</title>
+    <meta name="description" content="Status: er gresset klippet i dag?" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Inter:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="lawn" aria-hidden="true">
+      <div class="lawn__stripes"></div>
+      <div class="lawn__blades"></div>
+      <div class="lawn__vignette"></div>
+      <svg class="lawn__foreground" viewBox="0 0 1200 220" preserveAspectRatio="none">
+        <g class="blade-cluster blade-cluster--a">
+          <path d="M40,220 C35,160 55,120 30,60" />
+          <path d="M60,220 C68,150 50,110 70,50" />
+          <path d="M85,220 C90,155 75,100 100,55" />
+          <path d="M110,220 C100,160 120,120 105,65" />
+        </g>
+        <g class="blade-cluster blade-cluster--b">
+          <path d="M980,220 C975,150 1000,110 980,45" />
+          <path d="M1010,220 C1020,160 1000,115 1030,55" />
+          <path d="M1050,220 C1045,150 1065,105 1050,50" />
+          <path d="M1090,220 C1100,165 1080,120 1110,60" />
+        </g>
+        <g class="blade-cluster blade-cluster--c">
+          <path d="M600,220 C595,170 615,130 600,80" />
+          <path d="M625,220 C635,175 615,135 640,85" />
+        </g>
+      </svg>
+    </div>
+
+    <main class="scene">
+      <div class="sign">
+        <div class="sign__plank">
+          <div class="sign__grain" aria-hidden="true"></div>
+          <span class="sign__bolt sign__bolt--tl"></span>
+          <span class="sign__bolt sign__bolt--tr"></span>
+          <p id="status-word" class="sign__status" data-state="loading">…</p>
+          <p class="sign__caption">
+            Antall dager siden gresset ble klippet:
+            <span id="days-count" class="sign__days">–</span>
+          </p>
+        </div>
+        <div class="sign__stake" aria-hidden="true"></div>
+      </div>
+    </main>
+
+    <script define:vars={{ GIST_RAW_URL }}>
+      async function fetchDate(url) {
+        const res = await fetch(url, { cache: 'no-store' });
+        if (!res.ok) throw new Error('Kunne ikke hente status: ' + res.status);
+        return (await res.text()).trim();
+      }
+
+      async function loadDate() {
+        const bust = '?t=' + Date.now();
+        if (GIST_RAW_URL) {
+          try {
+            return await fetchDate(GIST_RAW_URL + bust);
+          } catch (err) {
+            console.warn('Fikk ikke hentet status fra gist, bruker lokal fallback.', err);
+          }
+        }
+        return fetchDate('/status.txt' + bust);
+      }
+
+      function daysSince(dateStr) {
+        const [y, m, d] = dateStr.split('-').map(Number);
+        const last = new Date(y, m - 1, d);
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        return Math.round((today - last) / 86400000);
+      }
+
+      (async () => {
+        const wordEl = document.getElementById('status-word');
+        const daysEl = document.getElementById('days-count');
+        try {
+          const dateStr = await loadDate();
+          const days = daysSince(dateStr);
+          const clampedDays = Math.max(days, 0);
+          const cutToday = days === 0;
+
+          wordEl.textContent = cutToday ? 'Ja.' : 'Nei.';
+          wordEl.dataset.state = cutToday ? 'yes' : 'no';
+          daysEl.textContent = String(clampedDays);
+        } catch (err) {
+          wordEl.textContent = '?';
+          wordEl.dataset.state = 'error';
+          daysEl.textContent = '–';
+          console.error(err);
+        }
+      })();
+    </script>
+
+    <style>
+      :root {
+        --grass-deep: #1e3a1e;
+        --grass-mid: #3c6b2c;
+        --grass-light: #5d8f3c;
+        --grass-stripe-dark: #2c4f24;
+        --grass-stripe-light: #35592b;
+        --wood-base: #7c5330;
+        --wood-dark: #5a3a1f;
+        --wood-grain: #4a2f19;
+        --cream: #f4efe1;
+        --cream-dim: #e3dcc7;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+      }
+
+      body {
+        min-height: 100svh;
+        font-family: 'Inter', system-ui, sans-serif;
+        overflow-x: hidden;
+      }
+
+      /* ---------- Lawn background ---------- */
+
+      .lawn {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+      }
+
+      .lawn__stripes {
+        position: absolute;
+        inset: 0;
+        background-image: repeating-linear-gradient(
+          100deg,
+          var(--grass-stripe-dark) 0px,
+          var(--grass-stripe-dark) 90px,
+          var(--grass-stripe-light) 90px,
+          var(--grass-stripe-light) 180px
+        );
+      }
+
+      .lawn__blades {
+        position: absolute;
+        inset: 0;
+        opacity: 0.55;
+        background-image: repeating-linear-gradient(
+            95deg,
+            rgba(93, 143, 60, 0.35) 0px,
+            transparent 2px,
+            transparent 7px
+          ),
+          repeating-linear-gradient(
+            85deg,
+            rgba(30, 58, 30, 0.4) 0px,
+            transparent 2px,
+            transparent 9px
+          );
+        mix-blend-mode: soft-light;
+      }
+
+      .lawn__vignette {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          ellipse at 50% 38%,
+          rgba(0, 0, 0, 0) 0%,
+          rgba(0, 0, 0, 0.12) 55%,
+          rgba(10, 20, 8, 0.55) 100%
+        );
+      }
+
+      .lawn__foreground {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -10px;
+        width: 100%;
+        height: 22vh;
+        min-height: 140px;
+        filter: blur(2px);
+      }
+
+      .blade-cluster path {
+        fill: none;
+        stroke: var(--grass-deep);
+        stroke-width: 14;
+        stroke-linecap: round;
+        opacity: 0.85;
+        transform-origin: bottom center;
+      }
+
+      .blade-cluster--b path {
+        stroke: #163116;
+      }
+
+      .blade-cluster--c path {
+        stroke: var(--grass-mid);
+        opacity: 0.6;
+      }
+
+      @media (prefers-reduced-motion: no-preference) {
+        .blade-cluster path {
+          animation: sway 4.5s ease-in-out infinite;
+        }
+        .blade-cluster path:nth-child(2n) {
+          animation-duration: 5.2s;
+          animation-delay: -1.3s;
+        }
+        .blade-cluster path:nth-child(3n) {
+          animation-duration: 3.8s;
+          animation-delay: -2.1s;
+        }
+      }
+
+      @keyframes sway {
+        0%,
+        100% {
+          transform: rotate(-2deg);
+        }
+        50% {
+          transform: rotate(2.5deg);
+        }
+      }
+
+      /* ---------- Sign ---------- */
+
+      .scene {
+        position: relative;
+        z-index: 1;
+        min-height: 100svh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8vh 1.5rem 4vh;
+      }
+
+      .sign {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transform: rotate(-1.4deg);
+      }
+
+      .sign__plank {
+        position: relative;
+        width: min(90vw, 480px);
+        padding: clamp(1.75rem, 5vw, 3rem) clamp(1.5rem, 6vw, 3.5rem) clamp(1.5rem, 4vw, 2.25rem);
+        background: linear-gradient(180deg, var(--wood-base) 0%, var(--wood-dark) 100%);
+        border-radius: 6px;
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45), 0 3px 0 rgba(0, 0, 0, 0.3) inset,
+          0 -3px 0 rgba(255, 255, 255, 0.06) inset;
+        text-align: center;
+      }
+
+      .sign__grain {
+        position: absolute;
+        inset: 0;
+        border-radius: 6px;
+        pointer-events: none;
+        background-image: repeating-linear-gradient(
+          92deg,
+          var(--wood-grain) 0px,
+          transparent 1.5px,
+          transparent 14px,
+          var(--wood-grain) 16px
+        );
+        opacity: 0.25;
+        mix-blend-mode: multiply;
+      }
+
+      .sign__bolt {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 35%, #d8cdb8, #6b5a3f 70%);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+      }
+      .sign__bolt--tl {
+        top: 14px;
+        left: 14px;
+      }
+      .sign__bolt--tr {
+        top: 14px;
+        right: 14px;
+      }
+
+      .sign__status {
+        position: relative;
+        margin: 0 0 0.65rem;
+        font-family: 'Permanent Marker', cursive;
+        font-size: clamp(4.5rem, 18vw, 8rem);
+        line-height: 1;
+        color: var(--cream);
+        text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
+        letter-spacing: 0.01em;
+      }
+
+      .sign__status[data-state='yes'] {
+        color: #eafbe0;
+      }
+      .sign__status[data-state='no'] {
+        color: var(--cream);
+      }
+      .sign__status[data-state='loading'] {
+        opacity: 0.5;
+      }
+      .sign__status[data-state='error'] {
+        color: #f2c9c9;
+      }
+
+      .sign__caption {
+        position: relative;
+        margin: 0;
+        font-size: clamp(0.8rem, 2.2vw, 0.95rem);
+        font-weight: 600;
+        color: var(--cream-dim);
+        letter-spacing: 0.01em;
+      }
+
+      .sign__days {
+        display: inline-block;
+        margin-left: 0.35em;
+        font-weight: 700;
+        color: var(--cream);
+      }
+
+      .sign__stake {
+        width: 34px;
+        height: clamp(70px, 12vh, 130px);
+        background: linear-gradient(180deg, var(--wood-dark), #3a2410);
+        border-radius: 0 0 4px 4px;
+        box-shadow: 2px 0 0 rgba(0, 0, 0, 0.2) inset;
+        clip-path: polygon(0 0, 100% 0, 78% 100%, 22% 100%);
+        margin-top: -4px;
+      }
+
+      @media (max-width: 420px) {
+        .sign__plank {
+          padding: 1.5rem 1.25rem 1.5rem;
+        }
+      }
+    </style>
+  </body>
+</html>
