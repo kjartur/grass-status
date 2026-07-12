@@ -231,53 +231,58 @@ const GIST_RAW_URL = "https://gist.githubusercontent.com/kjartur/2c77026c84788cb
       </div>
     </main>
 
-    <script define:vars={{ GIST_RAW_URL }}>
-      async function fetchDate(url) {
-        const res = await fetch(url, { cache: 'no-store' });
-        if (!res.ok) throw new Error('Kunne ikke hente status: ' + res.status);
-        return (await res.text()).trim();
+   ```html
+<script define:vars={{ GIST_RAW_URL }}>
+  async function fetchDate(url) {
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) throw new Error('Kunne ikke hente status: ' + res.status);
+    return (await res.text()).trim();
+  }
+
+  async function loadDate() {
+    const bust = '?t=' + Date.now();
+    if (GIST_RAW_URL) {
+      try {
+        return await fetchDate(GIST_RAW_URL + bust);
+      } catch (err) {
+        console.warn('Fikk ikke hentet status fra gist, bruker lokal fallback.', err);
       }
+    }
+    return fetchDate('/status.txt' + bust);
+  }
 
-      async function loadDate() {
-        const bust = '?t=' + Date.now();
-        if (GIST_RAW_URL) {
-          try {
-            return await fetchDate(GIST_RAW_URL + bust);
-          } catch (err) {
-            console.warn('Fikk ikke hentet status fra gist, bruker lokal fallback.', err);
-          }
-        }
-        return fetchDate('/status.txt' + bust);
-      }
+  function daysSince(dateStr) {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const last = new Date(y, m - 1, d);
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    return Math.round((today - last) / 86400000);
+  }
 
-      function daysSince(dateStr) {
-        const [y, m, d] = dateStr.split('-').map(Number);
-        const last = new Date(y, m - 1, d);
-        const now = new Date();
-        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        return Math.round((today - last) / 86400000);
-      }
+  (async () => {
+    const wordEl = document.getElementById('status-word');
+    const daysEl = document.getElementById('days-count');
 
-      (async () => {
-        const wordEl = document.getElementById('status-word');
-        const daysEl = document.getElementById('days-count');
-        try {
-          const dateStr = await loadDate();
-          const days = daysSince(dateStr);
-          const clampedDays = Math.max(days, 0);
-          const cutToday = days === 0;
+    try {
+      const dateStr = await loadDate();
+      const days = daysSince(dateStr);
+      const clampedDays = Math.max(days, 0);
 
-          wordEl.textContent = cutToday ? 'Ja.' : 'Nei.';
-          wordEl.dataset.state = cutToday ? 'yes' : 'no';
-          daysEl.textContent = String(clampedDays);
-        } catch (err) {
-          wordEl.textContent = '?';
-          wordEl.dataset.state = 'error';
-          daysEl.textContent = '–';
-          console.error(err);
-        }
-      })();
-    </script>
+      // Ja hvis gresset er klipt innen de siste 10 dagene
+      const cutWithin10Days = days >= 0 && days <= 10;
+
+      wordEl.textContent = cutWithin10Days ? 'Ja.' : 'Nei.';
+      wordEl.dataset.state = cutWithin10Days ? 'yes' : 'no';
+
+      daysEl.textContent = String(clampedDays);
+    } catch (err) {
+      wordEl.textContent = '?';
+      wordEl.dataset.state = 'error';
+      daysEl.textContent = '–';
+      console.error(err);
+    }
+  })();
+</script>
 
     <style>
       :root {
