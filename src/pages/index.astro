@@ -20,11 +20,18 @@ const GIST_RAW_URL = ""; // paste your gist's Raw text URL here — see README.m
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Inter:wght@500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Oswald:wght@500;600;700&display=swap"
       rel="stylesheet"
     />
   </head>
   <body>
+    <div class="sky" aria-hidden="true">
+      <div class="sky__sun"></div>
+      <div class="cloud cloud--a"></div>
+      <div class="cloud cloud--b"></div>
+      <div class="cloud cloud--c"></div>
+    </div>
+
     <div class="lawn" aria-hidden="true">
       <div class="lawn__stripes"></div>
       <div class="lawn__blades"></div>
@@ -212,11 +219,13 @@ const GIST_RAW_URL = ""; // paste your gist's Raw text URL here — see README.m
           <div class="sign__grain" aria-hidden="true"></div>
           <span class="sign__bolt sign__bolt--tl"></span>
           <span class="sign__bolt sign__bolt--tr"></span>
-          <p id="status-word" class="sign__status" data-state="loading">…</p>
-          <p class="sign__caption">
-            Antall dager siden gresset ble klippet:
-            <span id="days-count" class="sign__days">–</span>
-          </p>
+          <div class="sign__panel">
+            <p id="status-word" class="sign__status" data-state="loading">…</p>
+            <p class="sign__caption">
+              Antall dager siden gresset ble klippet:
+              <span id="days-count" class="sign__days">–</span>
+            </p>
+          </div>
         </div>
         <div class="sign__stake" aria-hidden="true"></div>
       </div>
@@ -272,6 +281,11 @@ const GIST_RAW_URL = ""; // paste your gist's Raw text URL here — see README.m
 
     <style>
       :root {
+        --sky-top: #1a6fb0;
+        --sky-mid: #4ea1d9;
+        --sky-horizon: #cdeaf7;
+        --sun-glow: #fff6dd;
+        --cloud: #ffffff;
         --grass-deep: #1e3a1e;
         --grass-mid: #3c6b2c;
         --grass-light: #5d8f3c;
@@ -280,6 +294,9 @@ const GIST_RAW_URL = ""; // paste your gist's Raw text URL here — see README.m
         --wood-base: #7c5330;
         --wood-dark: #5a3a1f;
         --wood-grain: #4a2f19;
+        --wood-post: #c98a4b;
+        --wood-post-light: #e6b578;
+        --wood-post-dark: #9c623a;
         --cream: #f4efe1;
         --cream-dim: #e3dcc7;
       }
@@ -297,16 +314,159 @@ const GIST_RAW_URL = ""; // paste your gist's Raw text URL here — see README.m
 
       body {
         min-height: 100svh;
-        font-family: 'Inter', system-ui, sans-serif;
+        font-family: 'Oswald', system-ui, sans-serif;
         overflow-x: hidden;
+      }
+
+      /* ---------- Sky background ---------- */
+
+      .sky {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        background: linear-gradient(
+          180deg,
+          var(--sky-top) 0%,
+          var(--sky-mid) 45%,
+          var(--sky-horizon) 100%
+        );
+        overflow: hidden;
+      }
+
+      .sky__sun {
+        position: absolute;
+        top: 8%;
+        right: 12%;
+        width: clamp(140px, 20vw, 260px);
+        height: clamp(140px, 20vw, 260px);
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          var(--sun-glow) 0%,
+          rgba(255, 246, 221, 0.55) 35%,
+          rgba(255, 246, 221, 0) 72%
+        );
+        filter: blur(2px);
+      }
+
+      .cloud {
+        position: absolute;
+        background: var(--cloud);
+        border-radius: 50%;
+        opacity: 0.9;
+        filter: blur(6px);
+      }
+
+      .cloud::before,
+      .cloud::after {
+        content: '';
+        position: absolute;
+        background: var(--cloud);
+        border-radius: 50%;
+      }
+
+      .cloud--a {
+        top: 14%;
+        left: 8%;
+        width: 140px;
+        height: 46px;
+      }
+      .cloud--a::before {
+        width: 80px;
+        height: 70px;
+        top: -34px;
+        left: 18px;
+      }
+      .cloud--a::after {
+        width: 60px;
+        height: 54px;
+        top: -22px;
+        left: 74px;
+      }
+
+      .cloud--b {
+        top: 24%;
+        left: 58%;
+        width: 190px;
+        height: 54px;
+        opacity: 0.8;
+      }
+      .cloud--b::before {
+        width: 100px;
+        height: 84px;
+        top: -40px;
+        left: 26px;
+      }
+      .cloud--b::after {
+        width: 70px;
+        height: 60px;
+        top: -24px;
+        left: 108px;
+      }
+
+      .cloud--c {
+        top: 10%;
+        left: 34%;
+        width: 100px;
+        height: 34px;
+        opacity: 0.65;
+        transform: scale(0.8);
+      }
+      .cloud--c::before {
+        width: 60px;
+        height: 50px;
+        top: -24px;
+        left: 14px;
+      }
+      .cloud--c::after {
+        width: 44px;
+        height: 38px;
+        top: -14px;
+        left: 54px;
+      }
+
+      @media (prefers-reduced-motion: no-preference) {
+        .cloud--a {
+          animation: drift 90s linear infinite;
+        }
+        .cloud--b {
+          animation: drift 130s linear infinite reverse;
+        }
+        .cloud--c {
+          animation: drift 70s linear infinite;
+        }
+      }
+
+      @keyframes drift {
+        from {
+          transform: translateX(0);
+        }
+        to {
+          transform: translateX(60px);
+        }
       }
 
       /* ---------- Lawn background ---------- */
 
       .lawn {
         position: fixed;
-        inset: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 56vh;
+        min-height: 320px;
         z-index: 0;
+      }
+
+      .lawn::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: -10vh;
+        height: 10vh;
+        background: linear-gradient(180deg, rgba(205, 234, 247, 0) 0%, var(--grass-stripe-light) 100%);
+        z-index: 1;
       }
 
       .lawn__stripes {
@@ -461,18 +621,19 @@ const GIST_RAW_URL = ""; // paste your gist's Raw text URL here — see README.m
       .sign__plank {
         position: relative;
         width: min(90vw, 480px);
-        padding: clamp(1.75rem, 5vw, 3rem) clamp(1.5rem, 6vw, 3.5rem) clamp(1.5rem, 4vw, 2.25rem);
+        padding: clamp(1.5rem, 4.5vw, 2.25rem) clamp(1.25rem, 5vw, 2rem);
         background: linear-gradient(180deg, var(--wood-base) 0%, var(--wood-dark) 100%);
-        border-radius: 6px;
-        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45), 0 3px 0 rgba(0, 0, 0, 0.3) inset,
-          0 -3px 0 rgba(255, 255, 255, 0.06) inset;
+        border-radius: 10px;
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45), 0 0 0 3px var(--wood-dark),
+          0 0 0 5px rgba(0, 0, 0, 0.25), 0 3px 0 rgba(0, 0, 0, 0.3) inset,
+          0 -3px 0 rgba(255, 255, 255, 0.08) inset;
         text-align: center;
       }
 
       .sign__grain {
         position: absolute;
         inset: 0;
-        border-radius: 6px;
+        border-radius: 10px;
         pointer-events: none;
         background-image: repeating-linear-gradient(
           92deg,
@@ -502,19 +663,28 @@ const GIST_RAW_URL = ""; // paste your gist's Raw text URL here — see README.m
         right: 14px;
       }
 
+      .sign__panel {
+        position: relative;
+        border-radius: 6px;
+        padding: clamp(1.1rem, 4vw, 1.75rem) clamp(0.75rem, 3vw, 1.25rem) clamp(0.9rem, 3vw, 1.3rem);
+        background: linear-gradient(180deg, #2c1c10 0%, #23160c 100%);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.55) inset, 0 -1px 0 rgba(255, 255, 255, 0.05) inset,
+          0 1px 0 rgba(255, 255, 255, 0.04);
+      }
+
       .sign__status {
         position: relative;
-        margin: 0 0 0.65rem;
-        font-family: 'Permanent Marker', cursive;
-        font-size: clamp(4.5rem, 18vw, 8rem);
+        margin: 0 0 0.5rem;
+        font-family: 'Alfa Slab One', 'Oswald', system-ui, sans-serif;
+        font-size: clamp(3.6rem, 15vw, 6.5rem);
         line-height: 1;
         color: var(--cream);
-        text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
+        text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.55), 0 1px 0 rgba(255, 255, 255, 0.12);
         letter-spacing: 0.01em;
       }
 
       .sign__status[data-state='yes'] {
-        color: #eafbe0;
+        color: #f2fbe9;
       }
       .sign__status[data-state='no'] {
         color: var(--cream);
@@ -523,38 +693,64 @@ const GIST_RAW_URL = ""; // paste your gist's Raw text URL here — see README.m
         opacity: 0.5;
       }
       .sign__status[data-state='error'] {
-        color: #f2c9c9;
+        color: #f7d3d3;
       }
 
       .sign__caption {
         position: relative;
         margin: 0;
-        font-size: clamp(0.8rem, 2.2vw, 0.95rem);
+        font-family: 'Oswald', system-ui, sans-serif;
+        font-size: clamp(0.85rem, 2.3vw, 1rem);
         font-weight: 600;
+        text-transform: uppercase;
         color: var(--cream-dim);
-        letter-spacing: 0.01em;
+        letter-spacing: 0.04em;
       }
 
       .sign__days {
         display: inline-block;
-        margin-left: 0.35em;
+        margin-left: 0.4em;
         font-weight: 700;
         color: var(--cream);
+        letter-spacing: 0.02em;
       }
 
       .sign__stake {
-        width: 34px;
+        position: relative;
+        width: 38px;
         height: clamp(70px, 12vh, 130px);
-        background: linear-gradient(180deg, var(--wood-dark), #3a2410);
+        background: linear-gradient(
+          90deg,
+          var(--wood-post-dark) 0%,
+          var(--wood-post) 20%,
+          var(--wood-post-light) 48%,
+          var(--wood-post) 76%,
+          var(--wood-post-dark) 100%
+        );
         border-radius: 0 0 4px 4px;
-        box-shadow: 2px 0 0 rgba(0, 0, 0, 0.2) inset;
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
         clip-path: polygon(0 0, 100% 0, 78% 100%, 22% 100%);
         margin-top: -4px;
+        overflow: hidden;
+      }
+
+      .sign__stake::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: repeating-linear-gradient(
+          180deg,
+          rgba(122, 74, 34, 0.35) 0px,
+          transparent 2px,
+          transparent 10px,
+          rgba(122, 74, 34, 0.35) 12px
+        );
+        mix-blend-mode: multiply;
       }
 
       @media (max-width: 420px) {
         .sign__plank {
-          padding: 1.5rem 1.25rem 1.5rem;
+          padding: 1.25rem 1rem;
         }
       }
     </style>
