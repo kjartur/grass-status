@@ -717,21 +717,20 @@ const GIST_RAW_URL = ""; // paste your gist's Raw text URL here — see README.m
 
       .sign__stake {
         position: relative;
-        width: 38px;
-        height: clamp(70px, 12vh, 130px);
+        width: 34px;
+        height: clamp(80px, 13vh, 140px);
         background: linear-gradient(
           90deg,
           var(--wood-post-dark) 0%,
-          var(--wood-post) 20%,
+          var(--wood-post) 22%,
           var(--wood-post-light) 48%,
-          var(--wood-post) 76%,
+          var(--wood-post) 74%,
           var(--wood-post-dark) 100%
         );
-        border-radius: 0 0 4px 4px;
-        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
-        clip-path: polygon(0 0, 100% 0, 78% 100%, 22% 100%);
-        margin-top: -4px;
-        overflow: hidden;
+        border-radius: 3px 3px 0 0;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        clip-path: polygon(0 0, 100% 0, 100% 82%, 50% 100%, 0 82%);
+        margin-top: -3px;
       }
 
       .sign__stake::before {
@@ -746,6 +745,17 @@ const GIST_RAW_URL = ""; // paste your gist's Raw text URL here — see README.m
           rgba(122, 74, 34, 0.35) 12px
         );
         mix-blend-mode: multiply;
+      }
+
+      .sign__stake::after {
+        content: '';
+        position: absolute;
+        left: 50%;
+        bottom: -6px;
+        width: 46px;
+        height: 12px;
+        background: radial-gradient(ellipse, rgba(10, 20, 8, 0.45) 0%, rgba(10, 20, 8, 0) 72%);
+        transform: translateX(-50%);
       }
 
       @media (max-width: 420px) {
