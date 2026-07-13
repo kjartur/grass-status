@@ -524,6 +524,7 @@ const GIST_RAW_URL = "https://gist.githubusercontent.com/kjartur/2c77026c84788cb
         width: 100%;
         height: 46vh;
         min-height: 280px;
+        z-index: 5;
         max-height: 480px;
         filter: blur(1.5px);
         -webkit-mask-image: linear-gradient(
@@ -620,8 +621,8 @@ const GIST_RAW_URL = "https://gist.githubusercontent.com/kjartur/2c77026c84788cb
         display: flex;
         flex-direction: column;
         align-items: center;
-        transform: rotate(-1.4deg);
-      }
+        transform: translateY(40px) rotate(-1.4deg);
+            }
 
       .sign__plank {
         position: relative;
