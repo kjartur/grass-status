@@ -1,0 +1,450 @@
+:root {
+  --sky-top: #1a6fb0;
+  --sky-mid: #4ea1d9;
+  --sky-horizon: #cdeaf7;
+  --sun-glow: #fff6dd;
+  --cloud: #ffffff;
+  --grass-deep: #1e3a1e;
+  --grass-mid: #3c6b2c;
+  --grass-light: #5d8f3c;
+  --grass-stripe-dark: #2c4f24;
+  --grass-stripe-light: #35592b;
+  --wood-base: #7c5330;
+  --wood-dark: #5a3a1f;
+  --wood-grain: #4a2f19;
+  --wood-post: #c98a4b;
+  --wood-post-light: #e6b578;
+  --wood-post-dark: #9c623a;
+  --cream: #f4efe1;
+  --cream-dim: #e3dcc7;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  min-height: 100svh;
+  font-family: 'Oswald', system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+/* ---------- Sky background ---------- */
+
+.sky {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 45%, var(--sky-horizon) 100%);
+  overflow: hidden;
+}
+
+.sky__sun {
+  position: absolute;
+  top: 8%;
+  right: 12%;
+  width: clamp(140px, 20vw, 260px);
+  height: clamp(140px, 20vw, 260px);
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--sun-glow) 0%, rgba(255, 246, 221, 0.55) 35%, rgba(255, 246, 221, 0) 72%);
+  filter: blur(2px);
+}
+
+.cloud {
+  position: absolute;
+  background: var(--cloud);
+  border-radius: 50%;
+  opacity: 0.9;
+  filter: blur(6px);
+}
+
+.cloud::before,
+.cloud::after {
+  content: '';
+  position: absolute;
+  background: var(--cloud);
+  border-radius: 50%;
+}
+
+.cloud--a {
+  top: 14%;
+  left: 8%;
+  width: 140px;
+  height: 46px;
+}
+.cloud--a::before {
+  width: 80px;
+  height: 70px;
+  top: -34px;
+  left: 18px;
+}
+.cloud--a::after {
+  width: 60px;
+  height: 54px;
+  top: -22px;
+  left: 74px;
+}
+
+.cloud--b {
+  top: 24%;
+  left: 58%;
+  width: 190px;
+  height: 54px;
+  opacity: 0.8;
+}
+.cloud--b::before {
+  width: 100px;
+  height: 84px;
+  top: -40px;
+  left: 26px;
+}
+.cloud--b::after {
+  width: 70px;
+  height: 60px;
+  top: -24px;
+  left: 108px;
+}
+
+.cloud--c {
+  top: 10%;
+  left: 34%;
+  width: 100px;
+  height: 34px;
+  opacity: 0.65;
+  transform: scale(0.8);
+}
+.cloud--c::before {
+  width: 60px;
+  height: 50px;
+  top: -24px;
+  left: 14px;
+}
+.cloud--c::after {
+  width: 44px;
+  height: 38px;
+  top: -14px;
+  left: 54px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cloud--a {
+    animation: drift 90s linear infinite;
+  }
+  .cloud--b {
+    animation: drift 130s linear infinite reverse;
+  }
+  .cloud--c {
+    animation: drift 70s linear infinite;
+  }
+}
+
+@keyframes drift {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(60px);
+  }
+}
+
+/* ---------- Lawn background ---------- */
+
+.lawn {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 56vh;
+  min-height: 320px;
+  z-index: 0;
+}
+
+.lawn::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -10vh;
+  height: 10vh;
+  background: linear-gradient(180deg, rgba(205, 234, 247, 0) 0%, var(--grass-stripe-light) 100%);
+  z-index: 1;
+}
+
+.lawn__stripes {
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    100deg,
+    var(--grass-stripe-dark) 0px,
+    var(--grass-stripe-dark) 90px,
+    var(--grass-stripe-light) 90px,
+    var(--grass-stripe-light) 180px
+  );
+}
+
+.lawn__blades {
+  position: absolute;
+  inset: 0;
+  opacity: 0.55;
+  background-image: repeating-linear-gradient(95deg, rgba(93, 143, 60, 0.35) 0px, transparent 2px, transparent 7px),
+    repeating-linear-gradient(85deg, rgba(30, 58, 30, 0.4) 0px, transparent 2px, transparent 9px);
+  mix-blend-mode: soft-light;
+}
+
+.lawn__vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 38%, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.12) 55%, rgba(10, 20, 8, 0.55) 100%);
+}
+
+/* Base grass field: used both as the main background layer and, with the
+   --overlay modifier below, as a layer that sits in front of the sign's
+   stake so the grass appears to grow up around it. */
+.lawn__foreground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -10px;
+  width: 100%;
+  height: 46vh;
+  min-height: 280px;
+  max-height: 480px;
+  filter: blur(1.5px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.5) 12%, black 30%);
+  mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.5) 12%, black 30%);
+}
+
+/* Overlay instance: a small clump anchored to the stake's base (see .sign
+   below), sitting in front of it so the grass appears to grow up around
+   it — not a full-width band, so it never covers the plank. */
+.lawn__foreground--overlay {
+  position: absolute;
+  left: 50%;
+  bottom: -20px;
+  transform: translateX(-50%);
+  width: 150px;
+  height: 90px;
+  z-index: 2;
+  pointer-events: none;
+  filter: blur(1px);
+}
+
+.blade-layer path {
+  fill: none;
+  stroke-linecap: round;
+  transform-box: fill-box;
+  transform-origin: bottom center;
+}
+
+.blade-layer--back path {
+  stroke: #21421f;
+  stroke-width: 7;
+  opacity: 0.55;
+}
+
+.blade-layer--mid path {
+  stroke: var(--grass-mid);
+  stroke-width: 9;
+  opacity: 0.75;
+}
+
+.blade-layer--front path {
+  stroke: var(--grass-light);
+  stroke-width: 11;
+  opacity: 0.95;
+}
+
+.blade-layer--back {
+  filter: blur(1.5px);
+}
+
+.blade-layer--front path:nth-child(3n + 1) {
+  stroke: #74a84a;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .blade-layer path {
+    animation: sway 5s ease-in-out infinite;
+  }
+  .blade-layer path:nth-child(2n) {
+    animation-duration: 6.1s;
+    animation-delay: -1.6s;
+  }
+  .blade-layer path:nth-child(3n) {
+    animation-duration: 4.3s;
+    animation-delay: -2.4s;
+  }
+  .blade-layer path:nth-child(5n) {
+    animation-duration: 5.7s;
+    animation-delay: -0.8s;
+  }
+  .blade-layer--back path {
+    animation-duration: 7s;
+  }
+}
+
+@keyframes sway {
+  0%,
+  100% {
+    transform: rotate(-1.6deg);
+  }
+  50% {
+    transform: rotate(2deg);
+  }
+}
+
+/* ---------- Sign ---------- */
+
+.scene {
+  position: relative;
+  z-index: 1;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8vh 1.5rem 4vh;
+}
+
+.sign {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: rotate(-1.4deg);
+}
+
+.sign__plank {
+  position: relative;
+  width: min(90vw, 480px);
+  padding: clamp(1.5rem, 4.5vw, 2.25rem) clamp(1.25rem, 5vw, 2rem);
+  background: linear-gradient(180deg, var(--wood-base) 0%, var(--wood-dark) 100%);
+  border-radius: 10px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45), 0 0 0 3px var(--wood-dark), 0 0 0 5px rgba(0, 0, 0, 0.25),
+    0 3px 0 rgba(0, 0, 0, 0.3) inset, 0 -3px 0 rgba(255, 255, 255, 0.08) inset;
+  text-align: center;
+}
+
+.sign__grain {
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(92deg, var(--wood-grain) 0px, transparent 1.5px, transparent 14px, var(--wood-grain) 16px);
+  opacity: 0.25;
+  mix-blend-mode: multiply;
+}
+
+.sign__bolt {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #d8cdb8, #6b5a3f 70%);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+.sign__bolt--tl {
+  top: 14px;
+  left: 14px;
+}
+.sign__bolt--tr {
+  top: 14px;
+  right: 14px;
+}
+
+.sign__panel {
+  position: relative;
+  border-radius: 6px;
+  padding: clamp(1.1rem, 4vw, 1.75rem) clamp(0.75rem, 3vw, 1.25rem) clamp(0.9rem, 3vw, 1.3rem);
+  background: linear-gradient(180deg, #2c1c10 0%, #23160c 100%);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.55) inset, 0 -1px 0 rgba(255, 255, 255, 0.05) inset, 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.sign__status {
+  position: relative;
+  margin: 0 0 0.5rem;
+  font-family: 'Alfa Slab One', 'Oswald', system-ui, sans-serif;
+  font-size: clamp(3.6rem, 15vw, 6.5rem);
+  line-height: 1;
+  color: var(--cream);
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.55), 0 1px 0 rgba(255, 255, 255, 0.12);
+  letter-spacing: 0.01em;
+}
+
+.sign__status[data-state='yes'] {
+  color: #f2fbe9;
+}
+.sign__status[data-state='no'] {
+  color: var(--cream);
+}
+.sign__status[data-state='loading'] {
+  opacity: 0.5;
+}
+.sign__status[data-state='error'] {
+  color: #f7d3d3;
+}
+
+.sign__caption {
+  position: relative;
+  margin: 0;
+  font-family: 'Oswald', system-ui, sans-serif;
+  font-size: clamp(0.85rem, 2.3vw, 1rem);
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--cream-dim);
+  letter-spacing: 0.04em;
+}
+
+.sign__days {
+  display: inline-block;
+  margin-left: 0.4em;
+  font-weight: 700;
+  color: var(--cream);
+  letter-spacing: 0.02em;
+}
+
+/* Stake: straight sides, flat bottom (it visually plants into the lawn —
+   the overlay grass layer covers its base rather than a carved point). */
+.sign__stake {
+  position: relative;
+  width: 34px;
+  height: clamp(96px, 15.6vh, 168px);
+  background: linear-gradient(
+    90deg,
+    var(--wood-post-dark) 0%,
+    var(--wood-post) 22%,
+    var(--wood-post-light) 48%,
+    var(--wood-post) 74%,
+    var(--wood-post-dark) 100%
+  );
+  border-radius: 3px 3px 2px 2px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  margin-top: -3px;
+  overflow: hidden;
+}
+
+.sign__stake::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    180deg,
+    rgba(122, 74, 34, 0.35) 0px,
+    transparent 2px,
+    transparent 10px,
+    rgba(122, 74, 34, 0.35) 12px
+  );
+  mix-blend-mode: multiply;
+}
+
+@media (max-width: 420px) {
+  .sign__plank {
+    padding: 1.25rem 1rem;
+  }
+}
