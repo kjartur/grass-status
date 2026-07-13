@@ -4,7 +4,7 @@
 // and works out "Ja." (mowed within the last 10 days) or "Nei." plus the
 // day-count, entirely client-side, every time the page loads.
 
-const GIST_RAW_URL = document.body.dataset.gistUrl || '';
+const GIST_RAW_URL = document.body.dataset.gistUrl || 'https://gist.githubusercontent.com/kjartur/2c77026c84788cb333b9a6bafedb0f8b/raw/0e8a852749da2d7382e13ee5847d24aa6b5d6890/grass-status';
 const RECENT_THRESHOLD_DAYS = 10;
 
 async function fetchDate(url) {
