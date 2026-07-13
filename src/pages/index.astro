@@ -453,14 +453,14 @@ const GIST_RAW_URL = "https://gist.githubusercontent.com/kjartur/2c77026c84788cb
 
       /* ---------- Lawn background ---------- */
 
-      .lawn {
-        position: fixed;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        height: 56vh;
-        min-height: 320px;
-        z-index: 0;
+    .lawn {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 56vh;
+      min-height: 320px;
+      z-index: 2; /* was 0 */
       }
 
       .lawn::before {
@@ -609,7 +609,7 @@ const GIST_RAW_URL = "https://gist.githubusercontent.com/kjartur/2c77026c84788cb
 
       .scene {
         position: relative;
-        z-index: 0;
+        z-index: 1;
         min-height: 100svh;
         display: flex;
         align-items: center;
